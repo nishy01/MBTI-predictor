@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Typology — MBTI Inference from Written Language</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <a href="#analyze" class="wordmark" id="brand-link">Typology</a>
+        <span class="brand-divider" aria-hidden="true"></span>
+        <span class="brand-note">Written Language Assessment</span>
+      </div>
+
+      <nav class="main-nav" aria-label="Primary navigation">
+        <button type="button" class="nav-link is-active" data-view="analyze">Analyze</button>
+        <button type="button" class="nav-link" data-view="prompts">Guided Prompts</button>
+        <button type="button" class="nav-link" data-view="reference">16 Types</button>
+      </nav>
+
+      <button type="button" class="engine-trigger" id="open-model-modal" title="Inspect or upload trained model">
+        <span class="status-dot" id="engine-dot"></span>
+        <span id="engine-label">Loading engine...</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="container page-main">
+    <!-- VIEW 1: FREE-FORM ANALYZE -->
+    <section id="view-analyze" class="view is-active" aria-labelledby="analyze-heading">
+      <div class="page-intro">
+        <p class="eyebrow">Four-Axis Psycholinguistic Inference</p>
+        <h1 id="analyze-heading">Read the structure behind how someone writes.</h1>
+        <p class="lead">
+          Paste essays, messages, journal notes, or multiple short posts. The model evaluates
+          vocabulary patterns, phrasing cadence, and sixteen length-normalized linguistic signals
+          across Introversion/Extraversion, Intuition/Sensing, Thinking/Feeling, and Judging/Perceiving.
+        </p>
+      </div>
+
+      <div class="sheet">
+        <div class="sheet-toolbar">
+          <div class="segmented-control" role="tablist" aria-label="Input format">
+            <button type="button" class="seg-btn is-active" id="mode-single-btn" role="tab" aria-selected="true">
+              Single Passage
+            </button>
+            <button type="button" class="seg-btn" id="mode-multi-btn" role="tab" aria-selected="false">
+              Multiple Entries
+            </button>
+          </div>
+
+          <div class="word-meter">
+            <span class="mono-stat" id="analyze-word-count">0 words</span>
+            <div class="signal-bar" aria-hidden="true">
+              <div class="signal-fill" id="analyze-signal-fill"></div>
+            </div>
+            <span class="signal-text" id="analyze-signal-text">Add 150+ words for best reliability</span>
+          </div>
+        </div>
+
+        <!-- Single passage textarea -->
+        <div id="single-input-wrap" class="input-panel">
+          <label for="free-text-input" class="sr-only">Writing sample</label>
+          <textarea
+            id="free-text-input"
+            class="writing-area"
+            rows="10"
+            placeholder="Write naturally in your own voice, or paste several paragraphs you have already written. Avoid typing explicit MBTI labels; focus on ordinary thoughts, stories, opinions, or plans."
+          ></textarea>
+        </div>
+
+        <!-- Multiple entries list -->
+        <div id="multi-input-wrap" class="input-panel is-hidden">
+          <p class="panel-hint">
+            Add separate posts, messages, or short notes. Separating entries preserves sentence rhythm across different topics.
+          </p>
+          <div id="entries-list" class="entries-list"></div>
+          <button type="button" class="text-action" id="add-entry-btn">+ Add another entry</button>
+        </div>
+
+        <div class="sheet-footer">
+          <div class="sample-links">
+            <span class="sample-prefix">Try a sample:</span>
+            <button type="button" class="link-btn" data-sample="architect">Systems Thinker</button>
+            <span class="sep" aria-hidden="true">/</span>
+            <button type="button" class="link-btn" data-sample="campaigner">Creative Connector</button>
+            <span class="sep" aria-hidden="true">/</span>
+            <button type="button" class="link-btn" data-sample="logistician">Practical Organizer</button>
+          </div>
+
+          <div class="action-group">
+            <button type="button" class="btn-secondary" id="clear-analyze-btn">Clear</button>
+            <button type="button" class="btn-primary" id="run-analyze-btn">Analyze Writing</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="error-banner is-hidden" id="analyze-error" role="alert"></p>
+    </section>
+
+    <!-- VIEW 2: GUIDED PROMPTS -->
+    <section id="view-prompts" class="view" aria-labelledby="prompts-heading">
+      <div class="page-intro">
+        <p class="eyebrow">Structured Writing Interview</p>
+        <h1 id="prompts-heading">Six open-ended questions, answered in your normal voice.</h1>
+        <p class="lead">
+          Short one-line texts rarely carry enough signal to distinguish personality traits reliably.
+          Write two to four honest sentences for each prompt below to gather a balanced 180-350 word sample.
+        </p>
+      </div>
+
+      <div class="sheet">
+        <div class="sheet-toolbar">
+          <span class="toolbar-title">Interview Prompts</span>
+          <div class="word-meter">
+            <span class="mono-stat" id="prompts-word-count">0 words</span>
+            <div class="signal-bar" aria-hidden="true">
+              <div class="signal-fill" id="prompts-signal-fill"></div>
+            </div>
+            <span class="signal-text" id="prompts-signal-text">Target: 180+ total words</span>
+          </div>
+        </div>
+
+        <div id="prompts-list" class="prompts-list"></div>
+
+        <div class="sheet-footer">
+          <span class="footnote-inline">Leave any question blank if you prefer; answer at least three for balanced signal.</span>
+          <div class="action-group">
+            <button type="button" class="btn-secondary" id="clear-prompts-btn">Reset</button>
+            <button type="button" class="btn-primary" id="run-prompts-btn">Analyze Responses</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="error-banner is-hidden" id="prompts-error" role="alert"></p>
+    </section>
+
+    <!-- SHARED RESULTS DOSSIER -->
+    <section id="results-section" class="results-section is-hidden" aria-live="polite">
+      <div class="results-meta-bar">
+        <span class="eyebrow">Assessment Report</span>
+        <div class="meta-items">
+          <span id="res-word-count" class="mono-pill"></span>
+          <span id="res-reliability" class="mono-pill"></span>
+          <span id="res-engine" class="mono-pill"></span>
+        </div>
+      </div>
+
+      <div class="dossier-card">
+        <div class="dossier-header">
+          <div class="type-identity">
+            <div class="type-code" id="res-type-code">INTJ</div>
+            <div>
+              <p class="type-group" id="res-type-group">Analysts</p>
+              <h2 class="type-title" id="res-type-title">The Architect</h2>
+            </div>
+          </div>
+
+          <div class="cognitive-stack">
+            <span class="stack-label">Cognitive Stack</span>
+            <div class="stack-pills" id="res-functions"></div>
+          </div>
+        </div>
+
+        <p class="type-summary" id="res-type-summary"></p>
+
+        <div class="divider-rule"></div>
+
+        <div class="axes-block">
+          <div class="section-head">
+            <h3>Four Dichotomy Spectrums</h3>
+            <span class="section-caption">Center line marks 50% threshold</span>
+          </div>
+          <div id="res-axes-list" class="axes-list"></div>
+        </div>
+
+        <div class="divider-rule"></div>
+
+        <div class="dossier-grid">
+          <div class="dossier-col">
+            <h3>Most Probable Types</h3>
+            <div id="res-top3" class="top3-list"></div>
+
+            <div class="profile-notes">
+              <h4>Communication Style</h4>
+              <p id="res-comm"></p>
+
+              <div class="two-list-grid">
+                <div>
+                  <h4>Core Strengths</h4>
+                  <ul id="res-strengths" class="clean-list"></ul>
+                </div>
+                <div>
+                  <h4>Potential Blind Spots</h4>
+                  <ul id="res-blindspots" class="clean-list"></ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dossier-col dossier-col-bordered">
+            <h3>Observed Linguistic Signals</h3>
+            <p class="col-caption">
+              Length-normalized measurements extracted directly from your text sample.
+            </p>
+            <dl id="res-signals" class="signal-table"></dl>
+
+            <div class="caveat-box" id="res-engine-note"></div>
+          </div>
+        </div>
+
+        <div class="dossier-footer">
+          <button type="button" class="btn-secondary" id="copy-report-btn">Copy Summary</button>
+          <button type="button" class="btn-secondary" id="edit-input-btn">Back to Writing</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: 16 TYPES REFERENCE -->
+    <section id="view-reference" class="view" aria-labelledby="reference-heading">
+      <div class="page-intro">
+        <p class="eyebrow">Typology Index</p>
+        <h1 id="reference-heading">The sixteen personality archetypes.</h1>
+        <p class="lead">
+          Select any type below to review its cognitive function order, communication tendencies,
+          strengths, and characteristic blind spots.
+        </p>
+      </div>
+
+      <div id="reference-detail" class="reference-detail is-hidden"></div>
+      <div id="reference-groups" class="reference-groups"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>Typology — Built for transparent four-axis MBTI text classification.</span>
+      <span>Predictions reflect statistical writing patterns, not clinical diagnosis.</span>
+    </div>
+  </footer>
+
+  <!-- MODEL SETUP MODAL -->
+  <div id="model-modal" class="modal-backdrop is-hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">Inference Backend</p>
+          <h2 id="modal-title">Model Configuration</h2>
+        </div>
+        <button type="button" class="close-btn" id="close-model-modal" aria-label="Close modal">Close</button>
+      </div>
+
+      <div class="modal-body">
+        <dl class="status-list">
+          <div>
+            <dt>Active Engine</dt>
+            <dd id="modal-engine-mode">—</dd>
+          </div>
+          <div>
+            <dt>Loaded Artifact</dt>
+            <dd id="modal-engine-file">None (using built-in psycholinguistic estimator)</dd>
+          </div>
+          <div>
+            <dt>MBTI Word Masking</dt>
+            <dd id="modal-masking">Enabled</dd>
+          </div>
+        </dl>
+
+        <div class="divider-rule"></div>
+
+        <h3 class="modal-subhead">Load Trained ML Ensemble (.joblib)</h3>
+        <p class="modal-desc">
+          Run <code>MBTI_prediction_improved.ipynb</code> (Cell 16) or <code>python train.py --data mbti_1.csv.zip</code>
+          to generate <code>mbti_predictor.joblib</code>, then upload it here to switch from the built-in estimator
+          to your full 4-axis TF-IDF + Stylometry + LightGBM ensemble.
+        </p>
+
+        <label class="upload-dropzone" id="upload-dropzone">
+          <input type="file" id="model-file-input" accept=".joblib" class="sr-only" />
+          <span class="dropzone-title" id="dropzone-label">Choose mbti_predictor.joblib or drop it here</span>
+          <span class="dropzone-sub">Hot-reloads immediately without restarting the server</span>
+        </label>
+
+        <p class="upload-feedback is-hidden" id="upload-feedback"></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
